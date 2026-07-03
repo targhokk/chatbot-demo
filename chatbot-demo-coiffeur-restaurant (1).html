@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant conversationnel — Démonstration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12161d;
+    --panel:#1b212b;
+    --panel-2:#232a35;
+    --line: rgba(242,237,228,0.10);
+    --cream:#f3efe6;
+    --cream-dim: rgba(243,239,230,0.62);
+    --gold:#c9a25d;
+    --gold-soft: rgba(201,162,93,0.14);
+    --sage:#8ba888;
+    --sage-soft: rgba(139,168,136,0.16);
+    --accent: var(--gold);
+    --accent-soft: var(--gold-soft);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--ink);
+    color: var(--cream);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background: var(--accent-soft); }
+
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 5vw;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:30px;height:30px;border-radius:8px;
+    background: linear-gradient(135deg, var(--gold), var(--sage));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif; font-size:15px; color:var(--ink); font-weight:600;
+  }
+  .brand-name{ font-family:'Fraunces', serif; font-size:19px; }
+  .badge-demo{
+    font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
+    color: var(--cream-dim);
+    border:1px solid var(--line);
+    padding:6px 12px; border-radius:999px;
+  }
+
+  /* ---------- hero / layout ---------- */
+  .wrap{
+    max-width:1180px; margin:0 auto; padding: 56px 5vw 90px;
+    display:grid; grid-template-columns: 1fr 420px; gap:64px;
+    align-items:start;
+  }
+  @media (max-width: 920px){
+    .wrap{ grid-template-columns: 1fr; }
+  }
+
+  .eyebrow{
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--accent);
+    margin-bottom:16px;
+  }
+  .hero h1{
+    font-size: clamp(32px, 4vw, 46px);
+    line-height:1.08;
+    margin-bottom:20px;
+  }
+  .hero p.lede{
+    font-size:16.5px; line-height:1.65;
+    color: var(--cream-dim);
+    max-width:46ch;
+    margin-bottom: 30px;
+  }
+
+  .switcher{
+    display:inline-flex; padding:4px; background:var(--panel);
+    border:1px solid var(--line); border-radius:999px; margin-bottom:34px;
+  }
+  .switcher button{
+    border:none; background:transparent; color:var(--cream-dim);
+    font-family:'Inter'; font-size:14px; font-weight:600;
+    padding:10px 20px; border-radius:999px; cursor:pointer;
+    transition: all .25s ease;
+  }
+  .switcher button.active{
+    background: var(--accent); color:#14181f;
+  }
+  body[data-biz="restaurant"] .switcher button.active{ background: var(--sage); }
+
+  .feature-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:14px 24px;
+    margin-top: 8px;
+  }
+  .feature{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:16px 0; border-top:1px solid var(--line);
+  }
+  .feature .num{
+    font-family:'Fraunces',serif; font-size:13px; color: var(--accent);
+    padding-top:2px;
+  }
+  .feature h3{ font-size:14.5px; margin-bottom:4px; font-family:'Inter'; font-weight:600;}
+  .feature p{ font-size:13.3px; color:var(--cream-dim); line-height:1.5; margin:0;}
+
+  .footnote{
+    margin-top:36px; font-size:13px; color:var(--cream-dim);
+    padding:14px 16px; border:1px dashed var(--line); border-radius:10px;
+    line-height:1.6;
+  }
+  .footnote b{ color:var(--cream); }
+
+  /* ---------- phone / chat widget ---------- */
+  .phone-shell{
+    position: sticky; top: 26px;
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius: 26px;
+    padding: 10px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.55);
+  }
+  .phone-inner{
+    background: var(--ink);
+    border-radius: 18px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    height: 620px;
+  }
+  .chat-header{
+    display:flex; align-items:center; gap:11px;
+    padding:16px 18px;
+    background: var(--panel-2);
+    border-bottom:1px solid var(--line);
+  }
+  .chat-avatar{
+    width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background: var(--accent-soft); color: var(--accent);
+    font-family:'Fraunces',serif; font-size:16px;
+    flex-shrink:0;
+  }
+  body[data-biz="restaurant"] .chat-avatar{ background:var(--sage-soft); color:var(--sage); }
+  .chat-header .info b{ display:block; font-size:14.5px; font-weight:600; }
+  .chat-header .info span{ font-size:12px; color:var(--cream-dim); display:flex; align-items:center; gap:5px;}
+  .dot-online{ width:6px;height:6px;border-radius:50%; background:#7cc17c; display:inline-block;}
+
+  .chat-body{
+    flex:1; overflow-y:auto; padding: 18px;
+    display:flex; flex-direction:column; gap:10px;
+    scroll-behavior:smooth;
+  }
+  .chat-body::-webkit-scrollbar{ width:6px; }
+  .chat-body::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
+
+  .msg{
+    max-width: 82%;
+    padding:10px 13px;
+    border-radius: 16px;
+    font-size:13.6px;
+    line-height:1.48;
+    animation: rise .28s ease;
+  }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .msg.bot{
+    align-self:flex-start;
+    background: var(--panel-2);
+    border:1px solid var(--line);
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background: var(--accent);
+    color:#181206;
+    border-bottom-right-radius:4px;
+    font-weight:500;
+  }
+  body[data-biz="restaurant"] .msg.user{ background: var(--sage); color:#0f1a10; }
+
+  .typing{
+    align-self:flex-start;
+    display:flex; gap:4px; padding:12px 14px;
+    background: var(--panel-2); border:1px solid var(--line);
+    border-radius:16px; border-bottom-left-radius:4px;
+  }
+  .typing span{
+    width:6px;height:6px;border-radius:50%;
+    background: var(--cream-dim);
+    animation: blink 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay:.15s; }
+  .typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes blink{ 0%,80%,100%{opacity:.25;} 40%{opacity:1;} }
+
+  .chips{
+    display:flex; flex-wrap:wrap; gap:7px; padding: 4px 18px 14px;
+  }
+  .chip{
+    border:1px solid var(--line); background:transparent;
+    color:var(--cream); font-family:'Inter'; font-size:12.3px;
+    padding:7px 12px; border-radius:999px; cursor:pointer;
+    transition: all .2s ease;
+  }
+  .chip:hover{ border-color: var(--accent); color: var(--accent); }
+  body[data-biz="restaurant"] .chip:hover{ border-color:var(--sage); color:var(--sage); }
+
+  .chat-input{
+    display:flex; gap:8px; padding:14px;
+    border-top:1px solid var(--line);
+    background: var(--panel-2);
+  }
+  .chat-input input{
+    flex:1; background: var(--ink); border:1px solid var(--line);
+    color: var(--cream); border-radius:999px; padding:11px 16px;
+    font-family:'Inter'; font-size:13.6px; outline:none;
+  }
+  .chat-input input:focus{ border-color: var(--accent); }
+  body[data-biz="restaurant"] .chat-input input:focus{ border-color: var(--sage); }
+  .chat-input button{
+    width:42px;height:42px; border-radius:50%; border:none;
+    background: var(--accent); color:#181206; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition: transform .15s ease;
+  }
+  body[data-biz="restaurant"] .chat-input button{ background: var(--sage); color:#0f1a10;}
+  .chat-input button:hover{ transform: scale(1.06); }
+  .chat-input button svg{ width:17px; height:17px; }
+
+  .reset-link{
+    text-align:center; font-size:11.5px; color:var(--cream-dim);
+    padding:8px 0 2px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
+
+  @media (max-width: 920px){
+    .phone-shell{ position:static; }
+    .phone-inner{ height: 540px; }
+  }
+</style>
+</head>
+<body data-biz="coiffeur">
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">C</div>
+    <div class="brand-name">Chatbot&nbsp;— Exemple</div>
+  </div>
+  <div class="badge-demo">Démonstration</div>
+</div>
+
+<div class="wrap">
+  <!-- ============ LEFT: pitch ============ -->
+  <div class="hero">
+    <div class="eyebrow">Assistant conversationnel sur-mesure</div>
+    <h1>Un assistant qui répond à vos clients et prend leurs réservations, jour et nuit.</h1>
+    <p class="lede">
+      Voici une démonstration fonctionnelle de l'assistant que je peux installer sur votre site ou votre page Facebook/Instagram.
+      Testez-le à droite : changez de secteur d'activité et posez-lui vraiment vos questions.
+    </p>
+
+    <div class="switcher">
+      <button class="active" data-biz-btn="coiffeur">💇 Salon de coiffure</button>
+      <button data-biz-btn="restaurant">🍽️ Restaurant</button>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="num">01</div>
+        <div><h3>Disponible 24h/24</h3><p>Il répond même après la fermeture, le week-end et les jours fériés.</p></div>
+      </div>
+      <div class="feature">
+        <div class="num">02</div>
+        <div><h3>Prend les réservations</h3><p>Rendez-vous en salon ou table au restaurant, sans appel téléphonique.</p></div>
+      </div>
+      <div class="feature">
+        <div class="num">03</div>
+        <div><h3>Connaît vos tarifs</h3><p>Prix, prestations, menu du jour : tout est appris à partir de vos informations.</p></div>
+      </div>
+      <div class="feature">
+        <div class="num">04</div>
+        <div><h3>Moins d'appels perdus</h3><p>Chaque question posée en dehors des heures d'ouverture est aujourd'hui un client qui raccroche.</p></div>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <b>Sur cette démo :</b> les données (prix, horaires) sont fictives, données à titre d'exemple.
+      Sur votre version, l'assistant utilisera vos vraies prestations, votre agenda réel et pourra
+      envoyer les réservations directement par SMS ou e-mail, ou les ajouter à votre planning.
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: chat widget ============ -->
+  <div class="phone-shell">
+    <div class="phone-inner">
+      <div class="chat-header">
+        <div class="chat-avatar" id="avatarIcon">✂️</div>
+        <div class="info">
+          <b id="bizName">Salon Ambre</b>
+          <span><i class="dot-online"></i><span id="bizStatus">En ligne — répond instantanément</span></span>
+        </div>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chips" id="chips"></div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Écrivez votre message…" autocomplete="off">
+        <button id="sendBtn" aria-label="Envoyer">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="reset-link" id="resetLink">recommencer la conversation</div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DONNÉES DES DEUX COMMERCES DE DÉMONSTRATION
+========================================================= */
+const DATA = {
+  coiffeur: {
+    name: "Salon Ambre",
+    icon: "✂️",
+    address: "12 rue des Lilas, 75011 Paris",
+    hours: "Du mardi au samedi, 9h – 19h. Fermé le dimanche et le lundi.",
+    services: [
+      {n:"Coupe Femme", p:45},
+      {n:"Coupe Homme", p:30},
+      {n:"Coupe Enfant (-12 ans)", p:20},
+      {n:"Brushing", p:25},
+      {n:"Coloration", p:65},
+      {n:"Mèches / Balayage", p:85},
+      {n:"Soin profond", p:20},
+      {n:"Coiffure mariage / événement", p:90},
+    ],
+    greeting: "Bonjour et bienvenue au Salon Ambre 👋 Je suis l'assistant du salon. Je peux vous donner nos tarifs, nos horaires, ou prendre votre rendez-vous. Que puis-je faire pour vous ?",
+    chips: ["Voir les tarifs", "Prendre rendez-vous", "Horaires du salon", "Où êtes-vous ?"],
+    bookingLabel: "prestation",
+    bookingQuestion: "Très bien ! Pour quelle prestation souhaitez-vous prendre rendez-vous ? (ex : coupe, coloration, brushing…)",
+    confirmVerb: "rendez-vous",
+  },
+  restaurant: {
+    name: "Le Petit Bistrot",
+    icon: "🍽️",
+    address: "8 place du Marché, 69002 Lyon",
+    hours: "Tous les jours, 12h – 14h30 et 19h – 22h30. Fermé le lundi midi.",
+    menu: {
+      "Entrées": [{n:"Soupe à l'oignon gratinée", p:9},{n:"Salade de chèvre chaud", p:11},{n:"Terrine maison", p:10}],
+      "Plats": [{n:"Bœuf bourguignon", p:22},{n:"Magret de canard", p:24},{n:"Risotto aux champignons (végé)", p:18},{n:"Poisson du jour", p:23}],
+      "Desserts": [{n:"Crème brûlée", p:8},{n:"Tarte tatin", p:8},{n:"Fondant au chocolat", p:9}],
+    },
+    formulas: [{n:"Formule déjeuner (entrée+plat ou plat+dessert)", p:19},{n:"Formule complète (entrée+plat+dessert)", p:24}],
+    greeting: "Bonjour et bienvenue au Petit Bistrot 👋 Je suis l'assistant du restaurant. Je peux vous présenter la carte, nos prix, ou réserver votre table. Que puis-je faire pour vous ?",
+    chips: ["Voir la carte", "Réserver une table", "Horaires", "Où êtes-vous ?"],
+    bookingLabel: "table",
+    bookingQuestion: "Avec plaisir ! Pour combien de personnes souhaitez-vous réserver ?",
+    confirmVerb: "réservation",
+  }
+};
+
+let currentBiz = "coiffeur";
+let booking = null; // état de la conversation de réservation en cours
+
+const chatBody = document.getElementById('chatBody');
+const chipsEl = document.getElementById('chips');
+const input = document.getElementById('userInput');
+
+/* ---------- rendu des messages ---------- */
+function addMsg(text, who){
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.innerHTML = text;
+  chatBody.appendChild(div);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function botReply(text, delay=550){
+  const typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  chatBody.appendChild(typing);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    addMsg(text, 'bot');
+  }, delay);
+}
+
+function setChips(list){
+  chipsEl.innerHTML = '';
+  list.forEach(label=>{
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = label;
+    b.onclick = ()=> handleUserMessage(label);
+    chipsEl.appendChild(b);
+  });
+}
+
+/* ---------- initialisation / reset ---------- */
+function initChat(){
+  const d = DATA[currentBiz];
+  document.body.setAttribute('data-biz', currentBiz);
+  document.getElementById('bizName').textContent = d.name;
+  document.getElementById('avatarIcon').textContent = d.icon;
+  document.getElementById('bizStatus').textContent = "En ligne — répond instantanément";
+  chatBody.innerHTML = '';
+  booking = null;
+  botReply(d.greeting, 300);
+  setChips(d.chips);
+}
+
+document.querySelectorAll('[data-biz-btn]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-biz-btn]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentBiz = btn.getAttribute('data-biz-btn');
+    initChat();
+  });
+});
+document.getElementById('resetLink').addEventListener('click', initChat);
+
+/* ---------- moteur de réponses ---------- */
+function formatServiceList(){
+  const d = DATA.coiffeur;
+  return "Voici nos prestations et tarifs :<br>" + d.services.map(s=>`• ${s.n} — <b>${s.p}€</b>`).join('<br>');
+}
+function formatMenu(){
+  const d = DATA.restaurant;
+  let out = "Voici notre carte :<br><br>";
+  for(const cat in d.menu){
+    out += `<b>${cat}</b><br>` + d.menu[cat].map(i=>`• ${i.n} — ${i.p}€`).join('<br>') + '<br><br>';
+  }
+  out += "<b>Formules</b><br>" + d.formulas.map(f=>`• ${f.n} — ${f.p}€`).join('<br>');
+  return out;
+}
+
+function matchAny(msg, words){
+  return words.some(w=> msg.includes(w));
+}
+
+function handleUserMessage(raw){
+  const msg = raw.trim();
+  if(!msg) return;
+  addMsg(msg, 'user');
+  input.value = '';
+  processMessage(msg.toLowerCase(), msg);
+}
+
+function processMessage(msg, original){
+  const d = DATA[currentBiz];
+
+  // --- si une réservation est en cours, on continue le scénario ---
+  if(booking && booking.active){
+    return continueBooking(msg, original);
+  }
+
+  // --- démarrer une réservation ---
+  if(matchAny(msg, ["rdv","rendez-vous","réserve","reserver","réserver","reservation","réservation","table","booking"])){
+    startBooking();
+    return;
+  }
+
+  // --- tarifs / prix / carte / menu ---
+  if(currentBiz === 'coiffeur' && matchAny(msg, ["prix","tarif","coute","coûte","combien"])){
+    botReply(formatServiceList());
+    setChips(["Prendre rendez-vous", "Horaires du salon", "Où êtes-vous ?"]);
+    return;
+  }
+  if(currentBiz === 'restaurant' && matchAny(msg, ["prix","tarif","carte","menu","coute","coûte","plat"])){
+    botReply(formatMenu());
+    setChips(["Réserver une table", "Horaires", "Où êtes-vous ?"]);
+    return;
+  }
+  if(currentBiz === 'coiffeur' && matchAny(msg, ["prestation","service","coupe","couleur","coloration","meche","mèche","balayage","brushing"])){
+    botReply(formatServiceList());
+    setChips(["Prendre rendez-vous", "Horaires du salon"]);
+    return;
+  }
+
+  // --- horaires ---
+  if(matchAny(msg, ["horaire","ouvert","ferme","fermé","heure"])){
+    botReply(`Nos horaires : ${d.hours}`);
+    setChips(currentBiz==='coiffeur' ? ["Prendre rendez-vous","Voir les tarifs"] : ["Réserver une table","Voir la carte"]);
+    return;
+  }
+
+  // --- adresse ---
+  if(matchAny(msg, ["adresse","où êtes","ou etes","situé","adress","localisation","où se trouve"])){
+    botReply(`Nous sommes situés au ${d.address}.`);
+    return;
+  }
+
+  // --- salutations ---
+  if(matchAny(msg, ["bonjour","salut","hello","coucou","bonsoir"])){
+    botReply(currentBiz==='coiffeur' ? "Bonjour ! Je peux vous indiquer nos tarifs, nos horaires, ou prendre votre rendez-vous 😊" : "Bonjour ! Je peux vous présenter la carte, nos horaires, ou réserver votre table 😊");
+    setChips(d.chips);
+    return;
+  }
+
+  // --- remerciements ---
+  if(matchAny(msg, ["merci","top","parfait","super"])){
+    botReply("Avec plaisir ! Autre chose pour vous ?");
+    setChips(d.chips);
+    return;
+  }
+
+  // --- annulation ---
+  if(matchAny(msg, ["annule","annuler"])){
+    botReply("Votre demande a été annulée. Souhaitez-vous autre chose ?");
+    setChips(d.chips);
+    booking = null;
+    return;
+  }
+
+  // --- fallback ---
+  botReply(currentBiz==='coiffeur'
+    ? "Je peux vous renseigner sur nos tarifs, nos horaires, notre adresse, ou prendre votre rendez-vous directement ici. Que souhaitez-vous ?"
+    : "Je peux vous présenter la carte, nos horaires, notre adresse, ou réserver votre table directement ici. Que souhaitez-vous ?");
+  setChips(d.chips);
+}
+
+/* ---------- validation des réponses ---------- */
+function isValidFreeText(v){
+  const t = v.trim();
+  return t.length >= 2 && /[a-zA-ZÀ-ÿ]/.test(t);
+}
+function isValidDate(v){
+  const t = v.trim().toLowerCase();
+  if(t.length < 3) return false;
+  if(/\d/.test(t)) return true; // contient un chiffre -> probablement un jour/une date
+  const keywords = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche",
+    "demain","aujourd'hui","ce soir","weekend","week-end",
+    "janvier","février","fevrier","mars","avril","mai","juin","juillet",
+    "août","aout","septembre","octobre","novembre","décembre","decembre"];
+  return keywords.some(k=> t.includes(k));
+}
+function isValidTime(v){
+  const t = v.trim().toLowerCase();
+  if(["midi","minuit"].some(k=> t.includes(k))) return true;
+  if(/\d{1,2}\s*[h:]\s*\d{0,2}/.test(t)) return true;
+  if(/\d{1,2}\s?(heures?)/.test(t)) return true;
+  return false;
+}
+function isValidName(v){
+  const t = v.trim();
+  if(t.length < 2) return false;
+  if(/\d/.test(t)) return false;
+  return /^[a-zA-ZÀ-ÿ' -]+$/.test(t);
+}
+function isValidPhone(v){
+  const cleaned = v.replace(/[\s.\-]/g,'');
+  return /^(0[1-9]\d{8}|\+33[1-9]\d{8})$/.test(cleaned);
+}
+function isValidEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(v.trim());
+}
+function validGuestsNumber(v){
+  const n = parseInt(v.replace(/\D/g,''), 10);
+  return (!isNaN(n) && n >= 1 && n <= 25) ? n : null;
+}
+
+/* ---------- scénario de réservation ---------- */
+// étapes communes après l'étape 1 propre à chaque métier :
+// 2 = date, 3 = heure, 4 = nom, 5 = téléphone, 6 = email
+function startBooking(){
+  const d = DATA[currentBiz];
+  booking = { active:true, step: 1, data:{} };
+  botReply(d.bookingQuestion);
+  setChips([]);
+}
+
+function continueBooking(msg, original){
+  const d = DATA[currentBiz];
+
+  // annulation possible à tout moment pendant la réservation
+  if(matchAny(msg, ["annule","annuler","stop"])){
+    botReply("Pas de souci, votre demande a été annulée. Souhaitez-vous autre chose ?");
+    setChips(d.chips);
+    booking = null;
+    return;
+  }
+
+  const step = booking.step;
+
+  // --- étape 1 : spécifique au métier ---
+  if(step === 1){
+    if(currentBiz === 'coiffeur'){
+      if(!isValidFreeText(original)){
+        botReply("Je n'ai pas bien compris la prestation souhaitée 🤔 Pouvez-vous préciser (ex : coupe, brushing, coloration) ?");
+        return;
+      }
+      booking.data.service = original;
+    } else {
+      const n = validGuestsNumber(original);
+      if(n === null){
+        botReply("Merci d'indiquer un nombre de personnes valide, par exemple 2 ou 4 🙂");
+        return;
+      }
+      booking.data.guests = n;
+    }
+    booking.step = 2;
+    botReply("Parfait. Quel jour souhaitez-vous ? (ex : samedi 12 juillet, demain, ce week-end)");
+    return;
+  }
+
+  // --- étape 2 : date ---
+  if(step === 2){
+    if(!isValidDate(original)){
+      botReply("Je n'ai pas bien compris la date 🤔 Pouvez-vous préciser un jour (ex : samedi 12 juillet, demain, mardi prochain) ?");
+      return;
+    }
+    booking.data.date = original;
+    booking.step = 3;
+    botReply("Et à quelle heure ? (ex : 14h, 14h30)");
+    return;
+  }
+
+  // --- étape 3 : heure ---
+  if(step === 3){
+    if(!isValidTime(original)){
+      botReply("Cet horaire ne me semble pas valide 🤔 Merci d'indiquer une heure au format 14h ou 14h30 par exemple.");
+      return;
+    }
+    booking.data.time = original;
+    booking.step = 4;
+    botReply("À quel nom dois-je noter cette réservation ? (nom et prénom)");
+    return;
+  }
+
+  // --- étape 4 : nom ---
+  if(step === 4){
+    if(!isValidName(original)){
+      botReply("Je n'ai pas bien saisi votre nom 🤔 Pouvez-vous l'indiquer sans chiffre ni symbole, par exemple : Marie Dupont ?");
+      return;
+    }
+    booking.data.name = original.trim();
+    booking.step = 5;
+    botReply("Quel est votre numéro de téléphone ?");
+    return;
+  }
+
+  // --- étape 5 : téléphone ---
+  if(step === 5){
+    if(!isValidPhone(original)){
+      botReply("Ce numéro ne semble pas valide 🤔 Merci d'indiquer un numéro français à 10 chiffres, par exemple 06 12 34 56 78.");
+      return;
+    }
+    booking.data.phone = original.trim();
+    booking.step = 6;
+    botReply("Et enfin, à quelle adresse e-mail dois-je envoyer la confirmation ?");
+    return;
+  }
+
+  // --- étape 6 : email ---
+  if(step === 6){
+    if(!isValidEmail(original)){
+      botReply("Cette adresse e-mail ne semble pas valide 🤔 Merci d'indiquer un e-mail au format nom@exemple.com.");
+      return;
+    }
+    booking.data.email = original.trim();
+    finalizeBooking();
+    return;
+  }
+}
+
+function finalizeBooking(){
+  const d = DATA[currentBiz];
+  let summary;
+  if(currentBiz === 'coiffeur'){
+    summary = `Voici le récapitulatif de votre ${d.confirmVerb} :<br>
+    • Prestation : <b>${booking.data.service}</b><br>
+    • Date : <b>${booking.data.date}</b><br>
+    • Heure : <b>${booking.data.time}</b><br>
+    • Nom : <b>${booking.data.name}</b><br>
+    • Téléphone : <b>${booking.data.phone}</b><br>
+    • E-mail : <b>${booking.data.email}</b><br><br>
+    C'est noté ! Un e-mail de confirmation va être envoyé à <b>${booking.data.email}</b>. À très vite au salon 💫`;
+  } else {
+    summary = `Voici le récapitulatif de votre ${d.confirmVerb} :<br>
+    • Nombre de personnes : <b>${booking.data.guests}</b><br>
+    • Date : <b>${booking.data.date}</b><br>
+    • Heure : <b>${booking.data.time}</b><br>
+    • Nom : <b>${booking.data.name}</b><br>
+    • Téléphone : <b>${booking.data.phone}</b><br>
+    • E-mail : <b>${booking.data.email}</b><br><br>
+    Votre table est réservée ! Un e-mail de confirmation va être envoyé à <b>${booking.data.email}</b>. À bientôt 🍽️`;
+  }
+  botReply(summary, 700);
+  booking = null;
+  setTimeout(()=> setChips(d.chips), 900);
+}
+
+/* ---------- envoi ---------- */
+document.getElementById('sendBtn').addEventListener('click', ()=> handleUserMessage(input.value));
+input.addEventListener('keydown', e=>{ if(e.key === 'Enter') handleUserMessage(input.value); });
+
+/* ---------- démarrage ---------- */
+initChat();
+</script>
+</body>
+</html>
